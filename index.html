@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Théorie Canvas</title>
+<style>
+canvas{
+	border:2px black solid;
+	background-color:lightblue;
+	margin:auto;
+	display:block;
+}
+
+
+</style>
+</head>
+
+<body>
+<canvas id="monCanvas"></canvas>
+
+
+<script>
+
+var canvas=document.getElementById("monCanvas")
+var c=canvas.getContext("2d")
+canvas.width=600
+canvas.height=600
+
+var imgflap=new Image()
+imgflap.src="flappy.png"
+
+var flappy={
+	x:50,
+	y:300,
+	h:30,
+	w:40
+	}
+	
+	var touche
+	
+	var sac=[]
+	var sac2=[]
+	
+var points=0
+
+var vel=5
+
+var jump=false
+
+function draw(){
+	c.drawImage(imgflap,flappy.x,flappy.y,flappy.w,flappy.h)
+	if(flappy.y+flappy.h<canvas.height){
+		vel+=0.1*5
+	flappy.y+=vel}
+
+	
+
+	if(flappy.y+flappy.h>canvas.height){flappy.y=600-flappy.h}
+	
+	if(touche==32&&flappy.y>=0&&jump==false){
+		jump=true
+		vel=-6
+		setTimeout(function(){jump=false},200)
+		}
+if(jump==true){
+	flappy.y+=vel
+
+}
+		
+		for (i = 0; i < sac.length; i++) {
+                sac[i].draw()
+				if(sac[i].x<0){ 
+				points++
+					sac.splice(i, 1)
+					sac2.splice(i, 1)
+					}
+            }
+			for (i = 0; i < sac2.length; i++) {
+                sac2[i].draw()
+            }
+	}
+	
+	addEventListener("keydown",function(e){touche=e.keyCode})
+	
+	addEventListener("keyup",function(e){touche=0})
+	
+	function walls(x, y, w, h, color, speed) {
+            this.x = x
+            this.y = y
+            this.w = w
+            this.h = h
+            this.color = color
+            this.speed = speed
+            this.draw = function () {
+                c.fillStyle = this.color
+				c.fillRect(this.x -= this.speed, this.y, this.w, this.h)
+				}
+				
+			}
+
+setInterval(function(){
+	var eee=0-Math.random()*500
+	sac.push(new walls(600, eee, 40, 450, "red", 3))
+	sac2.push(new walls(600, eee+650, 40, 450, "red", 3))}
+	, 1500)
+
+var best=0
+
+function pointage(){
+	c.font = "30px arial"
+	c.textAlign = "left"
+            c.fillStyle = "green"
+			c.fillText(points+" points", 50, 50)
+			if(end==true){
+				hauteur=500
+				if(points>best){best=points}
+				c.textAlign = "center"
+			c.fillText("GAME OVER", 300, 300)
+			c.fillText("Best: "+best+" points", 300, 400)
+		}
+	}
+
+function collision(a,b){
+	if(a.x+a.w>b.x&&
+	   a.x<b.x+b.w&&
+	   a.y<b.y+b.h&&
+	   a.y+a.h>b.y){
+		
+		console.log("Hit!")
+		return(true)
+		}
+	}
+
+var end=false
+
+ function checkcollision() {
+            for (i = 0; i < sac.length; i++) {
+                if (collision(sac[i], flappy)) {
+                    end=true
+					setTimeout(function(){end=false
+					sac = []
+            sac2 = []
+			points=0
+					},3000)
+                }}
+				
+				for (i = 0; i < sac2.length; i++) {
+                if (collision(sac2[i], flappy)) {
+                    end=true
+					setTimeout(function(){end=false
+					sac = []
+            sac2 = []
+			points=0
+					},3000)
+                }}
+				}
+
+function game(){
+	c.clearRect(0,0,600,600)
+	if(end==false){
+	draw()
+	checkcollision()}
+	pointage()
+	requestAnimationFrame(game)
+	}
+game()
+
+</script>
+</body>
+</html>
